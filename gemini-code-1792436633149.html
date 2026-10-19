@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Game RBT Pacman Tahun 4 - SK Taman Molek</title>
+
+    <!-- Import Font 'Fredoka' dari Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        html, body {
+            width: 100vw;
+            height: 100vh;
+            background-color: #0b091a; /* Synthwave Dark Violet Background */
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        /* Header UI Menegak */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 4px;
+            text-align: center;
+            width: 100%;
+            background: linear-gradient(180deg, #1f1235 0%, #0b091a 100%);
+            border-bottom: 2px solid #ff007f;
+            flex-shrink: 0;
+            height: 38px;
+        }
+
+        .header img {
+            height: 26px;
+            width: auto;
+        }
+
+        .header-text h2 {
+            font-size: 0.78rem;
+            color: #ff007f;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 5px rgba(255, 0, 127, 0.5);
+        }
+
+        .header-text h3 {
+            font-size: 0.62rem;
+            color: #00ffff;
+            font-weight: 400;
+        }
+
+        /* Skrin Mula Menegak */
+        #login-screen {
+            background-color: #160d29;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.8);
+            width: 90vw;
+            max-width: 380px;
+            text-align: center;
+            border: 2px solid #8a2be2;
+            margin: auto 0;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .logo-welcome {
+            width: 70px;
+            height: auto;
+            margin-bottom: 6px;
+        }
+
+        .input-group {
+            margin: 8px 0;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 3px;
+            font-size: 0.75rem;
+            color: #d1b3ff;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #4a1584;
+            background-color: #241142;
+            color: #fff;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        button {
+            background: linear-gradient(135deg, #ff007f, #8a2be2);
+            color: #ffffff;
+            border: none;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 6px;
+            width: 100%;
+            box-shadow: 0 4px 10px rgba(255, 0, 127, 0.3);
+        }
+
+        button:hover {
+            transform: scale(1.02);
+        }
+
+        /* Kad Pemain Terbaik */
+        #top-player-box {
+            margin-top: 12px;
+            background: linear-gradient(135deg, #241142 0%, #100621 100%);
+            border: 1.5px solid #00ffff;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+        }
+
+        #top-player-box h4 {
+            color: #00ffff;
+            font-size: 0.8rem;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .top-player-info {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.85rem;
+            color: #ffd700;
+        }
+
+        .top-player-detail {
+            color: #FFFFFF;
+            font-size: 0.78rem;
+            margin-top: 2px;
+        }
+
+        /* Container Permainan */
+        #game-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            width: 100vw;
+            height: calc(100vh - 38px);
+            padding: 4px;
+            gap: 4px;
+        }
+
+        #top-ui {
+            width: 100%;
+            background: linear-gradient(145deg, #1c0e36, #0c051a);
+            border: 2px solid #ff007f;
+            border-radius: 10px;
+            padding: 6px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            flex-shrink: 0;
+            box-shadow: 0 0 12px rgba(255, 0, 127, 0.25);
+        }
+
+        #stats-bar {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 0.72rem;
+            font-weight: bold;
+            color: #00ffff;
+            flex-wrap: wrap;
+            gap: 2px;
+        }
+
+        /* Kad Soalan */
+        #question-box-card {
+            background: linear-gradient(135deg, #2a114d 0%, #120624 100%);
+            border: 1.5px solid #ff007f;
+            border-radius: 8px;
+            width: 100%;
+            padding: 8px 10px;
+            box-shadow: inset 0 0 10px rgba(255, 0, 127, 0.15), 0 4px 12px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            position: relative;
+        }
+
+        .q-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 0, 127, 0.25);
+            padding-bottom: 3px;
+        }
+
+        .q-badge {
+            background: linear-gradient(90deg, #ff007f, #8a2be2);
+            color: #ffffff;
+            font-size: 0.68rem;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .q-tag {
+            color: #ffd700;
+            font-size: 0.65rem;
+            font-weight: bold;
+        }
+
+        .q-text {
+            font-family: 'Fredoka', 'Segoe UI', sans-serif;
+            color: #FFFFFF;
+            font-size: 0.92rem;
+            font-weight: 600;
+            line-height: 1.3;
+            text-align: center;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
+            letter-spacing: 0.3px;
+        }
+
+        #canvas-wrapper {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas {
+            background-color: #06040f;
+            border: 2px solid #8a2be2;
+            border-radius: 8px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.8);
+            touch-action: none;
+            cursor: pointer;
+        }
+
+        #justification-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.88);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 15px;
+        }
+
+        .modal-content {
+            background-color: #210c3b;
+            padding: 16px;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 100%;
+            border: 2px solid #FF5555;
+            text-align: center;
+        }
+
+        .modal-content h3 {
+            color: #FF5555;
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+        }
+
+        .modal-content p {
+            margin-bottom: 8px;
+            line-height: 1.3;
+            font-size: 0.8rem;
+            color: #E0E0E0;
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        .powerup-active {
+            color: #00ffff !important;
+            animation: blink 0.5s infinite alternate;
+        }
+
+        @keyframes blink {
+            from { opacity: 1; }
+            to { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header UI -->
+    <div class="header">
+        <img src="LOGO_SEKOLAH-no bg ori.png" alt="Logo SK Taman Molek" id="school-logo-header">
+        <div class="header-text">
+            <h2>PANITIA RBT SK TAMAN MOLEK</h2>
+            <h3>Time Trial Pacman RBT Tahun 4</h3>
+        </div>
+    </div>
+
+    <!-- Skrin Mula & Pendaftaran Murid -->
+    <div id="login-screen">
+        <img src="LOGO_SEKOLAH-no bg ori.png" alt="Logo SK Taman Molek" class="logo-welcome">
+        <h3 style="margin-bottom: 6px; color: #ff007f; font-size: 0.95rem;">Daftar Pemain Tahun 4</h3>
+        
+        <div class="input-group">
+            <label for="player-name">Nama Murid:</label>
+            <input type="text" id="player-name" placeholder="Contoh: Muhammad Ali">
+        </div>
+
+        <div class="input-group">
+            <label for="player-class">Kelas:</label>
+            <select id="player-class">
+                <option value="">-- Pilih Kelas --</option>
+                <option value="Arif 1">Arif 1</option>
+                <option value="Arif 2">Arif 2</option>
+                <option value="Arif 3">Arif 3</option>
+                <option value="Bijak 1">Bijak 1</option>
+                <option value="Bijak 2">Bijak 2</option>
+                <option value="Bijak 3">Bijak 3</option>
+                <option value="Cerdik 1">Cerdik 1</option>
+                <option value="Cerdik 2">Cerdik 2</option>
+                <option value="Cerdik 3">Cerdik 3</option>
+            </select>
+        </div>
+
+        <button onclick="startGame()">MULA PERMAINAN</button>
+
+        <!-- Paparan Pemain Terbaik -->
+        <div id="top-player-box">
+            <h4>🏆 Pemain Terbaik (Masa Terpantas)</h4>
+            <div id="top-player-content">
+                <div class="top-player-detail">Memuatkan data dari Google Sheet...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Skrin Permainan -->
+    <div id="game-container">
+        <div id="top-ui">
+            <div id="stats-bar">
+                <span>Pemain: <span id="disp-name" style="color:#fff;">-</span> (<span id="disp-class" style="color:#fff;">-</span>)</span>
+                <span>Masa: <span id="timer-display" style="color:#ffd700;">0.0s</span></span>
+                <span>Nyawa: <span id="lives-display" style="color:#FF5555;">❤️❤️❤️</span></span>
+                <span>Soalan: <span id="progress-display" style="color:#00ffff;">0/5</span></span>
+            </div>
+
+            <div id="question-box-card">
+                <div class="q-header">
+                    <span class="q-badge" id="q-badge-num">SOALAN 1</span>
+                    <span class="q-tag">Makan Bola [✓/✗]</span>
+                </div>
+                <div class="q-text" id="question-text">Memuatkan soalan...</div>
+            </div>
+
+            <div id="powerup-status" style="font-size: 0.7rem; height: 12px;"></div>
+        </div>
+        
+        <div id="canvas-wrapper">
+            <canvas id="gameCanvas"></canvas>
+        </div>
+    </div>
+
+    <!-- Modal Justifikasi -->
+    <div id="justification-modal">
+        <div class="modal-content">
+            <h3>JAWAPAN KURANG TEPAT!</h3>
+            <p id="modal-explanation"></p>
+            <p style="font-size: 0.75rem; color: #ff007f; font-weight: bold;">⚠️ 1 Soalan Tambahan Telah Ditambah!</p>
+            <button onclick="resumeGame()">Faham & Teruskan</button>
+        </div>
+    </div>
+
+    <script>
+        const GOOGLE_SCRIPT_URL = "PASANG_WEB_APP_URL_SEBENAR_ANDA_DI_SINI";
+
+        // Bank Soalan RBT Tahun 4 (Soalan 1 - 45)[cite: 3]
+        const questionBank = [
+            { id: 1, text: "Tujuan mematuhi peraturan keselamatan semasa berada di bengkel ialah untuk mengelakkan berlakunya kemalangan.", answer: true, reason: "Peraturan keselamatan dibuat untuk melindungi murid daripada kecederaan dan kemalangan." },
+            { id: 2, text: "Gambar rak 'Tempat Meletakkan Beg' ialah simbol untuk mengikat rambut yang panjang di dalam bengkel.", answer: false, reason: "Gambar rak tersebut menunjukkan peraturan meletakkan beg di tempat yang disediakan, bukan mengikat rambut." },
+            { id: 3, text: "Segi tiga kuning dengan gambar orang tergelincir bermaksud amaran lantai licin.", answer: true, reason: "Simbol tersebut merupakan tanda amaran lantai licin." },
+            { id: 4, text: "Peti pertolongan cemas digunakan apabila berlaku kebakaran kecil.", answer: false, reason: "Peti pertolongan cemas digunakan untuk merawat luka/cedera kecil. Kebakaran kecil dipadamkan dengan alat pemadam api." },
+            { id: 5, text: "Ubat batuk tidak perlu ada dalam peti pertolongan cemas.", answer: true, reason: "Peti pertolongan cemas hanya untuk rawatan kecederaan awal seperti luka atau lecuran." },
+            { id: 6, text: "Warna kuning dalam tanda keselamatan bermaksud larangan.", answer: false, reason: "Warna kuning bermaksud waspada/amaran. Warna merah bermaksud larangan." },
+            { id: 7, text: "Alat pemadam api boleh digunakan untuk memadamkan kebakaran kecil.", answer: true, reason: "Pemadam api berfungsi memadamkan kebakaran kecil sebelum merebak." },
+            { id: 8, text: "Jika alatan tangan di dalam bengkel hilang, murid perlu melaporkan kehilangan itu kepada pihak berkuasa.", answer: false, reason: "Murid perlu melaporkan kehilangan alatan kepada guru RBT yang bertugas." },
+            { id: 9, text: "Membersihkan kotoran dengan reja kain atau berus yang sesuai ialah langkah penyelenggaraan bagi gunting.", answer: true, reason: "Gunting dibersihkan dengan kain atau berus supaya kekal bersih dan tidak tumpul." },
+            { id: 10, text: "Alatan tangan di bengkel disusun pada papan alatan berlabel supaya mudah diambil dan direkodkan jika hilang.", answer: true, reason: "Penyusunan teratur dan berlabel memudahkan pemeriksaan alatan." },
+            { id: 11, text: "Mengikat rambut yang panjang serta memakai pakaian dan kasut yang sesuai ialah peraturan keselamatan diri.", answer: true, reason: "Amalan ini melindungi diri daripada kemalangan dan tersangkut pada alatan." },
+            { id: 12, text: "Alat pemadam api hendaklah diletakkan di tempat yang berkunci.", answer: false, reason: "Pemadam api mesti diletakkan di tempat terbuka yang mudah dilihat dan dicapai." },
+            { id: 13, text: "Membiarkan alatan dan sampah di atas meja selepas aktiviti ialah peraturan keselamatan yang perlu dipatuhi.", answer: false, reason: "Murid wajib membersihkan alatan dan membuang sampah selepas selesai aktiviti." },
+            { id: 14, text: "Langkah pertama merawat melecur ialah berjumpa pegawai perubatan sebelum menyiram air.", answer: false, reason: "Langkah pertama ialah menyiram kawasan melecur di bawah aliran air sejuk terlebih dahulu." },
+            { id: 15, text: "Masuk bengkel tanpa kebenaran guru boleh menyebabkan kecederaan atau kehilangan barang.", answer: true, reason: "Tanpa pengawasan guru, penggunaan alatan secara salah boleh membawa bahaya." },
+            { id: 16, text: "Reka bentuk bermaksud langkah penyelenggaraan sesuatu alatan yang direka.", answer: false, reason: "Reka bentuk ialah corak, bentuk atau susunan sesuatu produk yang direka cipta." },
+            { id: 17, text: "Reka bentuk penting kerana membantu kerja dan memudahkan urusan harian.", answer: true, reason: "Produk yang direka baik menjadikan aktiviti harian lebih cepat dan berkesan." },
+            { id: 18, text: "Kerjaya yang berkaitan dengan reka bentuk bangunan ialah pereka fesyen.", answer: false, reason: "Reka bentuk bangunan dikaitkan dengan kerjaya arkitek." },
+            { id: 19, text: "Daun semanggi merupakan contoh rupa organik.", answer: true, reason: "Rupa organik wujud secara semula jadi dengan garisan melengkung tidak sekata." },
+            { id: 20, text: "Garisan melengkung naik turun secara lembut dinamakan garisan zig zag.", answer: false, reason: "Garisan melengkung lembut ialah garisan beralun. Garisan zig-zag bersudut tajam." },
+            { id: 21, text: "Rupa merupakan kawasan permukaan yang dibatasi oleh garisan luar.", answer: true, reason: "Rupa ialah bentuk 2D yang dibatasi oleh sempadan garisan luar." },
+            { id: 22, text: "Garisan yang berpusing keluar dari bahagian tengah secara berterusan ialah garisan berlingkar.", answer: true, reason: "Garisan tersebut ialah garisan berlingkar (spiral)." },
+            { id: 23, text: "Langkah pertama menghasilkan sesuatu produk ialah membuat persembahan.", answer: false, reason: "Langkah pertama ialah menjana idea. Membuat persembahan ialah langkah terakhir." },
+            { id: 24, text: "Rupa, saiz, warna dan garisan ialah elemen dalam reka bentuk.", answer: true, reason: "Keempat-empat ini merupakan elemen asas dalam reka bentuk produk." },
+            { id: 25, text: "Tujuan menganalisis lakaran ialah untuk memastikan lakaran tidak ditiru oleh orang lain.", answer: false, reason: "Lakaran dianalisis untuk menilai kelebihan dan kekurangan supaya dapat ditambah baik." },
+            { id: 26, text: "Bahan kitar semula digunakan ketika membina produk untuk menjimatkan kos.", answer: true, reason: "Penggunaan bahan kitar semula mengurangkan perbelanjaan bahan binaan." },
+            { id: 27, text: "Tekstur yang panas menimbulkan suasana ceria, riang dan bersemangat.", answer: false, reason: "Warna panas (seperti merah/kuning) yang memberi suasana ceria, bukan tekstur." },
+            { id: 28, text: "Tekstur reka bentuk teko seramik ialah licin dan berkilat.", answer: true, reason: "Permukaan seramik berglaz mempunyai tekstur licin dan berkilat." },
+            { id: 29, text: "Teknologi bermaksud pembuatan kerja yang dilakukan setiap hari.", answer: false, reason: "Teknologi ialah aplikasi pengetahuan sains untuk mereka alat memudahkan kehidupan." },
+            { id: 30, text: "Menyukarkan kerja seharian ialah salah satu kepentingan teknologi.", answer: false, reason: "Teknologi bertujuan memudahkan dan mempercepatkan kerja seharian." },
+            { id: 31, text: "Teknologi konvensional ialah peralatan tradisional yang telah digunakan sejak sekian lama.", answer: true, reason: "Teknologi konvensional menggunakan alatan ringkas dan kaedah lama." },
+            { id: 32, text: "Lesung batu ialah teknologi peralatan moden yang digunakan untuk menghancurkan bahan masakan.", answer: false, reason: "Lesung batu ialah contoh teknologi konvensional." },
+            { id: 33, text: "Pen 3 dimensi yang digunakan untuk melukis model 3D ialah contoh teknologi moden.", answer: true, reason: "Pen 3D merupakan hasil inovasi teknologi peralatan moden." },
+            { id: 34, text: "Jarum jahit ialah alat yang paling mudah dan cepat untuk menghasilkan sarung tangan jahit.", answer: false, reason: "Menjahit dengan tangan menggunakan jarum mengambil masa lama. Mesin jahit lebih cepat." },
+            { id: 35, text: "Jika manusia kekal menggunakan peralatan konvensional, pembangunan negara akan merosot.", answer: true, reason: "Tanpa kemajuan teknologi
